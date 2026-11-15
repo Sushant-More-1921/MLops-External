@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        // Ensure Python and Python Scripts are available in PATH on Windows Jenkins agents
+        PATH = "C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313;C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313\\Scripts;${env.PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -21,12 +26,12 @@ pipeline {
                         '''
                     } else {
                         bat '''
+                            set "PATH=C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313;C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313\\Scripts;%PATH%"
                             if not exist venv (
-                                python -m venv venv
+                                python -m venv --system-site-packages venv
                             )
                             call venv\\Scripts\\activate.bat
-                            python -m pip install --upgrade pip
-                            pip install -r requirements.txt
+                            python -m pip install -r requirements.txt
                         '''
                     }
                 }
@@ -39,12 +44,13 @@ pipeline {
                     if (isUnix()) {
                         sh '''
                             . venv/bin/activate
-                            pytest -v --junitxml=reports/pytest-results.xml
+                            python -m pytest -v --junitxml=reports/pytest-results.xml
                         '''
                     } else {
                         bat '''
+                            set "PATH=C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313;C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313\\Scripts;%PATH%"
                             call venv\\Scripts\\activate.bat
-                            pytest -v --junitxml=reports/pytest-results.xml
+                            python -m pytest -v --junitxml=reports/pytest-results.xml
                         '''
                     }
                 }
@@ -61,6 +67,7 @@ pipeline {
                         '''
                     } else {
                         bat '''
+                            set "PATH=C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313;C:\\Users\\Sushant More\\AppData\\Local\\Programs\\Python\\Python313\\Scripts;%PATH%"
                             call venv\\Scripts\\activate.bat
                             python -m monitoring.evidently_monitor
                         '''
